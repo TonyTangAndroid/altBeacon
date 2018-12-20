@@ -17,7 +17,7 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
-public class RangingActivity extends Activity implements BeaconConsumer {
+public class RangingActivity extends android.support.v7.app.AppCompatActivity implements BeaconConsumer {
     protected static final String TAG = "RangingActivity";
     private BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
 
