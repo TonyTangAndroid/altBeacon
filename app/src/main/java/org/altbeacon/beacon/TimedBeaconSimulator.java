@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Matt Tyler on 4/18/14.
  */
 public class TimedBeaconSimulator implements org.altbeacon.beacon.simulator.BeaconSimulator {
-    protected static final String TAG = "TimedBeaconSimulator";
+
     /*
      * You may simulate detection of beacons by creating a class like this in your project.
      * This is especially useful for when you are testing in an Emulator or on a device without BluetoothLE capability.
@@ -31,7 +31,7 @@ public class TimedBeaconSimulator implements org.altbeacon.beacon.simulator.Beac
      * Creates empty beacons ArrayList.
      */
     public TimedBeaconSimulator() {
-        beacons = new ArrayList<Beacon>();
+        beacons = new ArrayList<>();
     }
 
     /**
@@ -69,7 +69,7 @@ public class TimedBeaconSimulator implements org.altbeacon.beacon.simulator.Beac
      */
     public void createTimedSimulatedBeacons() {
         if (USE_SIMULATED_BEACONS) {
-            beacons = new ArrayList<Beacon>();
+            beacons = new ArrayList<>();
             Beacon beacon1 = new AltBeacon.Builder().setId1("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A")
                     .setId2("1").setId3("1").setRssi(-55).setTxPower(-55).build();
             Beacon beacon2 = new AltBeacon.Builder().setId1("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A")
@@ -83,7 +83,7 @@ public class TimedBeaconSimulator implements org.altbeacon.beacon.simulator.Beac
             beacons.add(beacon3);
             beacons.add(beacon4);
 
-            final List<Beacon> finalBeacons = new ArrayList<Beacon>(beacons);
+            final List<Beacon> finalBeacons = new ArrayList<>(beacons);
 
             //Clearing beacons list to prevent all beacons from appearing immediately.
             //These will be added back into the beacons list from finalBeacons later.
@@ -92,20 +92,20 @@ public class TimedBeaconSimulator implements org.altbeacon.beacon.simulator.Beac
             scheduleTaskExecutor = Executors.newScheduledThreadPool(5);
 
             // This schedules an beacon to appear every 10 seconds:
-            scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
-                public void run() {
-                    try {
-                        //putting a single beacon back into the beacons list.
-                        if (finalBeacons.size() > beacons.size())
-                            beacons.add(finalBeacons.get(beacons.size()));
-                        else
-                            scheduleTaskExecutor.shutdown();
+            scheduleTaskExecutor.scheduleAtFixedRate(() -> run(finalBeacons), 0, 10, TimeUnit.SECONDS);
+        }
+    }
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, 0, 10, TimeUnit.SECONDS);
+    private void run(List<Beacon> finalBeacons) {
+        try {
+            //putting a single beacon back into the beacons list.
+            if (finalBeacons.size() > beacons.size())
+                beacons.add(finalBeacons.get(beacons.size()));
+            else
+                scheduleTaskExecutor.shutdown();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

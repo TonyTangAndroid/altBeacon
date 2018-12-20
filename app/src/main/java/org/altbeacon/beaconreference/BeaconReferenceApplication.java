@@ -21,6 +21,7 @@ import org.altbeacon.beacon.startup.RegionBootstrap;
 public class BeaconReferenceApplication extends Application implements BootstrapNotifier {
     private static final String TAG = "BeaconReferenceApp";
     private RegionBootstrap regionBootstrap;
+    @SuppressWarnings("FieldCanBeLocal")
     private BackgroundPowerSaver backgroundPowerSaver;
     private boolean haveDetectedBeaconsSinceBoot = false;
     private MonitoringActivity monitoringActivity = null;
@@ -41,7 +42,7 @@ public class BeaconReferenceApplication extends Application implements Bootstrap
         //beaconManager.getBeaconParsers().add(new BeaconParser().
         //        setBeaconLayout("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
 
-        beaconManager.setDebug(true);
+        BeaconManager.setDebug(true);
 
 
         // Uncomment the code below to use a foreground service to scan for beacons. This unlocks
@@ -154,7 +155,7 @@ public class BeaconReferenceApplication extends Application implements Bootstrap
 
     private void sendNotification() {
         NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
+                new NotificationCompat.Builder(this, "beacon_channel_id")
                         .setContentTitle("Beacon Reference Application")
                         .setContentText("An beacon is nearby.")
                         .setSmallIcon(R.drawable.ic_launcher);

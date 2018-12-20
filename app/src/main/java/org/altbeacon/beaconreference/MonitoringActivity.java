@@ -1,13 +1,13 @@
 package org.altbeacon.beaconreference;
 
 import android.Manifest;
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +22,7 @@ import org.altbeacon.beacon.BeaconManager;
 public class MonitoringActivity extends android.support.v7.app.AppCompatActivity {
     protected static final String TAG = "MonitoringActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private EditText et_log;
 
 
     @Override
@@ -29,8 +30,8 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitoring);
+        et_log = MonitoringActivity.this.findViewById(R.id.monitoringText);
         verifyBluetooth();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Android M Permission check
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -38,24 +39,16 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
                 builder.setTitle("This app needs location access");
                 builder.setMessage("Please grant location access so this app can detect beacons in the background.");
                 builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                    @TargetApi(23)
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                PERMISSION_REQUEST_COARSE_LOCATION);
-                    }
-
-                });
+                builder.setOnDismissListener(dialog -> requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        PERMISSION_REQUEST_COARSE_LOCATION));
                 builder.show();
             }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -65,16 +58,8 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
                     builder.setTitle("Functionality limited");
                     builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
                     builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                        }
-
-                    });
                     builder.show();
                 }
-                return;
             }
         }
     }
@@ -84,6 +69,7 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
         this.startActivity(myIntent);
     }
 
+    @SuppressLint("SetTextI18n")
     public void onEnableClicked(View view) {
         BeaconReferenceApplication application = ((BeaconReferenceApplication) this.getApplicationContext());
         if (BeaconManager.getInstanceForApplication(this).getMonitoredRegions().size() > 0) {
@@ -118,13 +104,6 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
                 builder.setTitle("Bluetooth not enabled");
                 builder.setMessage("Please enable bluetooth in settings and restart this application.");
                 builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        //finish();
-                        //System.exit(0);
-                    }
-                });
                 builder.show();
             }
         } catch (RuntimeException e) {
@@ -132,15 +111,6 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
             builder.setTitle("Bluetooth LE not available");
             builder.setMessage("Sorry, this device does not support Bluetooth LE.");
             builder.setPositiveButton(android.R.string.ok, null);
-            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    //finish();
-                    //System.exit(0);
-                }
-
-            });
             builder.show();
 
         }
@@ -148,13 +118,7 @@ public class MonitoringActivity extends android.support.v7.app.AppCompatActivity
     }
 
     public void updateLog(final String log) {
-        runOnUiThread(new Runnable() {
-            public void run() {
-                EditText editText = (EditText) MonitoringActivity.this
-                        .findViewById(R.id.monitoringText);
-                editText.setText(log);
-            }
-        });
+        runOnUiThread(() -> et_log.setText(log));
     }
 
 }
