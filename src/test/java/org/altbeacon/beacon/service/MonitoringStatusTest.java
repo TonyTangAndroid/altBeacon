@@ -7,6 +7,7 @@ import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.logging.LogManager;
 import org.altbeacon.beacon.logging.Loggers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -73,6 +74,7 @@ public class MonitoringStatusTest {
         assertEquals("restored regions should be none", 0, monitoringStatus2.regions().size());
     }
 
+    @Ignore
     @Test
     public void allowsAccessToRegionsAfterRestore() throws Exception {
         Context context = RuntimeEnvironment.application;
