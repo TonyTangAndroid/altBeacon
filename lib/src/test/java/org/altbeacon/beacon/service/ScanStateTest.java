@@ -4,9 +4,7 @@ package org.altbeacon.beacon.service;
  * Created by dyoung on 7/30/17.
  */
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.logging.LogManager;

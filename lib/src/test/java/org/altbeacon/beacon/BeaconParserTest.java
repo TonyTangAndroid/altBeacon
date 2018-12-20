@@ -34,10 +34,11 @@ public class BeaconParserTest {
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
+
     public static String byteArrayToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
@@ -53,7 +54,7 @@ public class BeaconParserTest {
         parser.setBeaconLayout("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
 
         assertEquals("parser should get beacon type code start offset", new Integer(2), parser.mMatchingBeaconTypeCodeStartOffset);
-        assertEquals("parser should get beacon type code end offset",  new Integer(3), parser.mMatchingBeaconTypeCodeEndOffset);
+        assertEquals("parser should get beacon type code end offset", new Integer(3), parser.mMatchingBeaconTypeCodeEndOffset);
         assertEquals("parser should get beacon type code", new Long(0xbeac), parser.getMatchingBeaconTypeCode());
         assertEquals("parser should get identifier start offset", new Integer(4), parser.mIdentifierStartOffsets.get(0));
         assertEquals("parser should get identifier end offset", new Integer(19), parser.mIdentifierEndOffsets.get(0));
@@ -88,7 +89,7 @@ public class BeaconParserTest {
         assertEquals("id2 should be parsed", "1", beacon.getIdentifier(1).toString());
         assertEquals("id3 should be parsed", "2", beacon.getIdentifier(2).toString());
         assertEquals("txPower should be parsed", -59, beacon.getTxPower());
-        assertEquals("manufacturer should be parsed", 0x118 ,beacon.getManufacturer());
+        assertEquals("manufacturer should be parsed", 0x118, beacon.getManufacturer());
     }
 
     @Test
@@ -115,7 +116,7 @@ public class BeaconParserTest {
         assertEquals("id2 should be parsed", "1", beacon.getIdentifier(1).toString());
         assertEquals("id3 should be parsed", "2", beacon.getIdentifier(2).toString());
         assertEquals("txPower should be parsed", -59, beacon.getTxPower());
-        assertEquals("manufacturer should be parsed", 0x118 ,beacon.getManufacturer());
+        assertEquals("manufacturer should be parsed", 0x118, beacon.getManufacturer());
         assertEquals("missing data field zero should be zero", new Long(0l), beacon.getDataFields().get(0));
 
     }
@@ -134,7 +135,7 @@ public class BeaconParserTest {
         assertEquals("id2 should be parsed", "1", beacon.getIdentifier(1).toString());
         assertEquals("id3 should be parsed", "2", beacon.getIdentifier(2).toString());
         assertEquals("txPower should be parsed", -59, beacon.getTxPower());
-        assertEquals("manufacturer should be parsed", 0x118 ,beacon.getManufacturer());
+        assertEquals("manufacturer should be parsed", 0x118, beacon.getManufacturer());
     }
 
     @Test
@@ -264,8 +265,8 @@ public class BeaconParserTest {
         Beacon beacon = new Beacon.Builder()
                 .setManufacturer(0x0118) // Radius Networks
                 .setId1("1") // device sequence number
-                .setId2(String.format("0x%08X", (long)((latitude+90)*10000.0)))
-                .setId3(String.format("0x%08X", (long)((longitude+180)*10000.0)))
+                .setId2(String.format("0x%08X", (long) ((latitude + 90) * 10000.0)))
+                .setId3(String.format("0x%08X", (long) ((longitude + 180) * 10000.0)))
                 .setTxPower(-59) // The measured transmitter power at one meter in dBm
                 .build();
         // TODO: make this pass if data fields are little endian or > 4 bytes (or even > 2 bytes)
@@ -273,7 +274,7 @@ public class BeaconParserTest {
                 setBeaconLayout("m:2-3=10ca,i:4-9,i:10-13,i:14-17,p:18-18");
         byte[] bytes = p.getBeaconAdvertisementData(beacon);
         byte[] headerBytes = hexStringToByteArray("02011a1bff1801");
-        byte[] advBytes = new byte[bytes.length+headerBytes.length];
+        byte[] advBytes = new byte[bytes.length + headerBytes.length];
         System.arraycopy(headerBytes, 0, advBytes, 0, headerBytes.length);
         System.arraycopy(bytes, 0, advBytes, headerBytes.length, bytes.length);
 
@@ -282,13 +283,14 @@ public class BeaconParserTest {
         double parsedLatitude = Long.parseLong(parsedBeacon.getId2().toString().substring(2), 16) / 10000.0 - 90.0;
         double parsedLongitude = Long.parseLong(parsedBeacon.getId3().toString().substring(2), 16) / 10000.0 - 180.0;
 
-        long encodedLatitude = (long)((latitude+90)*10000.0);
+        long encodedLatitude = (long) ((latitude + 90) * 10000.0);
         assertEquals("encoded latitude hex should match", String.format("0x%08x", encodedLatitude), parsedBeacon.getId2().toString());
         assertEquals("device sequence num should be same", "0x000000000001", parsedBeacon.getId1().toString());
         assertEquals("latitude should be about right", latitude, parsedLatitude, 0.0001);
         assertEquals("longitude should be about right", longitude, parsedLongitude, 0.0001);
 
     }
+
     @Test
     public void testCanGetAdvertisementDataForUrlBeacon() {
         org.robolectric.shadows.ShadowLog.stream = System.err;
@@ -303,6 +305,7 @@ public class BeaconParserTest {
         byte[] bytes = p.getBeaconAdvertisementData(beacon);
         assertEquals("First byte of url should be in position 3", 0x02, bytes[2]);
     }
+
     @Test
     public void doesNotCashWithOverflowingByteCodeComparisonOnPdu() {
         // Test for https://github.com/AltBeacon/android-beacon-library/issues/323
@@ -320,7 +323,7 @@ public class BeaconParserTest {
     }
 
     @Test
-    public void testCanParseLongDataTypeOfDifferentSize(){
+    public void testCanParseLongDataTypeOfDifferentSize() {
         // Create a beacon parser
         BeaconParser parser = new BeaconParser();
         parser.setBeaconLayout("m:2-3=0118,i:4-7,p:8-8,d:9-16,d:18-21,d:22-25");

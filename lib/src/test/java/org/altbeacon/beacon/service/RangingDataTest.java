@@ -1,10 +1,11 @@
 package org.altbeacon.beacon.service;
 
 import android.content.Context;
+import android.os.Bundle;
 
+import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.Identifier;
-import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.logging.LogManager;
 import org.altbeacon.beacon.logging.Loggers;
@@ -12,12 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
-
-import android.os.Bundle;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,14 +41,14 @@ public class RangingDataTest {
         Region region = new Region("testRegion", identifiers);
         ArrayList<Beacon> beacons = new ArrayList<Beacon>();
         Beacon beacon = new Beacon.Builder().setIdentifiers(identifiers)
-                                            .setRssi(-1)
-                                            .setRunningAverageRssi(-2)
-                                            .setTxPower(-50)
-                                            .setBluetoothAddress("01:02:03:04:05:06")
-                                            .build();
+                .setRssi(-1)
+                .setRunningAverageRssi(-2)
+                .setTxPower(-50)
+                .setBluetoothAddress("01:02:03:04:05:06")
+                .build();
         beacon.setRssiMeasurementCount(1);
         beacon.setPacketCount(2);
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             beacons.add(beacon);
         }
         RangingData data = new RangingData(beacons, region);
@@ -77,17 +76,17 @@ public class RangingDataTest {
         Region region = new Region("testRegion", identifiers);
         ArrayList<Beacon> beacons = new ArrayList<Beacon>();
         Beacon beacon = new Beacon.Builder().setIdentifiers(identifiers).setRssi(-1).setRunningAverageRssi(-2).setTxPower(-50).setBluetoothAddress("01:02:03:04:05:06").build();
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             beacons.add(beacon);
         }
         RangingData data = new RangingData(beacons, region);
         long time1 = System.currentTimeMillis();
-        for (int i=0; i< 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Bundle bundle = data.toBundle();
             RangingData data2 = RangingData.fromBundle(bundle);
         }
         long time2 = System.currentTimeMillis();
-        System.out.println("*** Ranging Data Serialization benchmark: "+(time2-time1));
+        System.out.println("*** Ranging Data Serialization benchmark: " + (time2 - time1));
     }
 
 }

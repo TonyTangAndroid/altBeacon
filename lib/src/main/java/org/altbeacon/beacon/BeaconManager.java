@@ -3,7 +3,7 @@
  * http://www.radiusnetworks.com
  *
  * @author David G. Young
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -11,9 +11,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -49,9 +49,7 @@ import org.altbeacon.beacon.service.RangeState;
 import org.altbeacon.beacon.service.RangedBeacon;
 import org.altbeacon.beacon.service.RegionMonitoringState;
 import org.altbeacon.beacon.service.RunningAverageRssiFilter;
-import org.altbeacon.beacon.service.ScanJob;
 import org.altbeacon.beacon.service.ScanJobScheduler;
-import org.altbeacon.beacon.service.ScanState;
 import org.altbeacon.beacon.service.SettingsData;
 import org.altbeacon.beacon.service.StartRMData;
 import org.altbeacon.beacon.service.scanner.NonBeaconLeScanCallback;
@@ -70,15 +68,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.altbeacon.beacon.service.ScanJob;
-import org.altbeacon.beacon.service.ScanState;
-
 /**
  * A class used to set up interaction with beacons from an <code>Activity</code> or <code>Service</code>.
  * This class is used in conjunction with <code>BeaconConsumer</code> interface, which provides a callback
  * when the <code>BeaconService</code> is ready to use.  Until this callback is made, ranging and monitoring
  * of beacons is not possible.
- *
+ * <p>
  * In the example below, an Activity implements the <code>BeaconConsumer</code> interface, binds
  * to the service, then when it gets the callback saying the service is ready, it starts ranging.
  *
@@ -121,79 +116,6 @@ import org.altbeacon.beacon.service.ScanState;
  * @author Andrew Reitz <andrew@andrewreitz.com>
  */
 public class BeaconManager {
-    @NonNull
-    private static final String TAG = "BeaconManager";
-
-    @NonNull
-    private final Context mContext;
-
-    @Nullable
-    protected static volatile BeaconManager sInstance = null;
-
-    @NonNull
-    private final ConcurrentMap<BeaconConsumer, ConsumerInfo> consumers = new ConcurrentHashMap<>();
-
-    @Nullable
-    private Messenger serviceMessenger = null;
-
-    @NonNull
-    protected final Set<RangeNotifier> rangeNotifiers = new CopyOnWriteArraySet<>();
-
-    @Nullable
-    protected RangeNotifier dataRequestNotifier = null;
-
-    @NonNull
-    protected final Set<MonitorNotifier> monitorNotifiers = new CopyOnWriteArraySet<>();
-
-    @NonNull
-    private final ArrayList<Region> rangedRegions = new ArrayList<>();
-
-    @NonNull
-    private final List<BeaconParser> beaconParsers = new CopyOnWriteArrayList<>();
-
-    @Nullable
-    private NonBeaconLeScanCallback mNonBeaconLeScanCallback;
-
-    private boolean mRegionStatePersistenceEnabled = true;
-    private boolean mBackgroundMode = false;
-    private boolean mBackgroundModeUninitialized = true;
-    private boolean mMainProcess = false;
-    @Nullable
-    private Boolean mScannerInSameProcess = null;
-    private boolean mScheduledScanJobsEnabled = false;
-    private static boolean sAndroidLScanningDisabled = false;
-    private static boolean sManifestCheckingDisabled = false;
-
-    @Nullable
-    private Notification mForegroundServiceNotification = null;
-    private int mForegroundServiceNotificationId = -1;
-
-    /**
-     * Private lock object for singleton initialization protecting against denial-of-service attack.
-     */
-    private static final Object SINGLETON_LOCK = new Object();
-
-    /**
-     * Set to true if you want to show library debugging.
-     *
-     * @param debug True turn on all logs for this library to be printed out to logcat. False turns
-     *              off detailed logging..
-     *
-     * This is a convenience method that calls setLogger to a verbose logger and enables verbose
-     * logging. For more fine grained control, use:
-     * {@link org.altbeacon.beacon.logging.LogManager#setLogger(org.altbeacon.beacon.logging.Logger)}
-     * instead.
-     */
-    public static void setDebug(boolean debug) {
-        if (debug) {
-            LogManager.setLogger(Loggers.verboseLogger());
-            LogManager.setVerboseLoggingEnabled(true);
-        } else {
-            LogManager.setLogger(Loggers.empty());
-            LogManager.setVerboseLoggingEnabled(false);
-        }
-    }
-
     /**
      * The default duration in milliseconds of the Bluetooth scan cycle
      */
@@ -214,62 +136,95 @@ public class BeaconManager {
      * The default duration in milliseconds of region exit time
      */
     public static final long DEFAULT_EXIT_PERIOD = 10000L;
-
+    @NonNull
+    private static final String TAG = "BeaconManager";
+    /**
+     * Private lock object for singleton initialization protecting against denial-of-service attack.
+     */
+    private static final Object SINGLETON_LOCK = new Object();
+    @Nullable
+    protected static volatile BeaconManager sInstance = null;
+    @Nullable
+    protected static BeaconSimulator beaconSimulator;
+    protected static String distanceModelUpdateUrl = "https://s3.amazonaws.com/android-beacon-library/android-distance.json";
+    /**
+     * Default class for rssi filter/calculation implementation
+     */
+    protected static Class rssiFilterImplClass = RunningAverageRssiFilter.class;
+    private static boolean sAndroidLScanningDisabled = false;
+    private static boolean sManifestCheckingDisabled = false;
     private static long sExitRegionPeriod = DEFAULT_EXIT_PERIOD;
-
+    @NonNull
+    protected final Set<RangeNotifier> rangeNotifiers = new CopyOnWriteArraySet<>();
+    @NonNull
+    protected final Set<MonitorNotifier> monitorNotifiers = new CopyOnWriteArraySet<>();
+    @NonNull
+    private final Context mContext;
+    @NonNull
+    private final ConcurrentMap<BeaconConsumer, ConsumerInfo> consumers = new ConcurrentHashMap<>();
+    @NonNull
+    private final ArrayList<Region> rangedRegions = new ArrayList<>();
+    @NonNull
+    private final List<BeaconParser> beaconParsers = new CopyOnWriteArrayList<>();
+    @Nullable
+    protected RangeNotifier dataRequestNotifier = null;
+    @Nullable
+    private Messenger serviceMessenger = null;
+    @Nullable
+    private NonBeaconLeScanCallback mNonBeaconLeScanCallback;
+    private boolean mRegionStatePersistenceEnabled = true;
+    private boolean mBackgroundMode = false;
+    private boolean mBackgroundModeUninitialized = true;
+    private boolean mMainProcess = false;
+    @Nullable
+    private Boolean mScannerInSameProcess = null;
+    private boolean mScheduledScanJobsEnabled = false;
+    @Nullable
+    private Notification mForegroundServiceNotification = null;
+    private int mForegroundServiceNotificationId = -1;
     private long foregroundScanPeriod = DEFAULT_FOREGROUND_SCAN_PERIOD;
     private long foregroundBetweenScanPeriod = DEFAULT_FOREGROUND_BETWEEN_SCAN_PERIOD;
     private long backgroundScanPeriod = DEFAULT_BACKGROUND_SCAN_PERIOD;
     private long backgroundBetweenScanPeriod = DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD;
 
-    /**
-     * Sets the duration in milliseconds of each Bluetooth LE scan cycle to look for beacons.
-     * This function is used to setup the period before calling {@link #bind} or when switching
-     * between background/foreground. To have it effect on an already running scan (when the next
-     * cycle starts), call {@link #updateScanPeriods}
-     *
-     * @param p
-     */
-    public void setForegroundScanPeriod(long p) {
-        foregroundScanPeriod = p;
-    }
-
-    /**
-     * Sets the duration in milliseconds between each Bluetooth LE scan cycle to look for beacons.
-     * This function is used to setup the period before calling {@link #bind} or when switching
-     * between background/foreground. To have it effect on an already running scan (when the next
-     * cycle starts), call {@link #updateScanPeriods}
-     *
-     * @param p
-     */
-    public void setForegroundBetweenScanPeriod(long p) {
-        foregroundBetweenScanPeriod = p;
-    }
-
-    /**
-     * Sets the duration in milliseconds of each Bluetooth LE scan cycle to look for beacons.
-     * This function is used to setup the period before calling {@link #bind} or when switching
-     * between background/foreground. To have it effect on an already running scan (when the next
-     * cycle starts), call {@link #updateScanPeriods}
-     *
-     * @param p
-     */
-    public void setBackgroundScanPeriod(long p) {
-        backgroundScanPeriod = p;
-    }
-
-    /**
-     * Sets the duration in milliseconds spent not scanning between each Bluetooth LE scan cycle when no ranging/monitoring clients are in the foreground
-     *
-     * @param p
-     */
-    public void setBackgroundBetweenScanPeriod(long p) {
-        backgroundBetweenScanPeriod = p;
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                backgroundBetweenScanPeriod < 15*60*1000 /* 15 min */) {
-            LogManager.w(TAG, "Setting a short backgroundBetweenScanPeriod has no effect on "+
-                    "Android 8+, which is limited to scanning every ~15 minutes");
+    protected BeaconManager(@NonNull Context context) {
+        mContext = context.getApplicationContext();
+        checkIfMainProcess();
+        if (!sManifestCheckingDisabled) {
+            verifyServiceDeclaration();
         }
+        this.beaconParsers.add(new AltBeaconParser());
+        setScheduledScanJobsEnabledDefault();
+    }
+
+    /**
+     * Set to true if you want to show library debugging.
+     *
+     * @param debug True turn on all logs for this library to be printed out to logcat. False turns
+     *              off detailed logging..
+     *              <p>
+     *              This is a convenience method that calls setLogger to a verbose logger and enables verbose
+     *              logging. For more fine grained control, use:
+     *              {@link org.altbeacon.beacon.logging.LogManager#setLogger(org.altbeacon.beacon.logging.Logger)}
+     *              instead.
+     */
+    public static void setDebug(boolean debug) {
+        if (debug) {
+            LogManager.setLogger(Loggers.verboseLogger());
+            LogManager.setVerboseLoggingEnabled(true);
+        } else {
+            LogManager.setLogger(Loggers.empty());
+            LogManager.setVerboseLoggingEnabled(false);
+        }
+    }
+
+    /**
+     * Get region exit milliseconds
+     *
+     * @return exit region period in milliseconds
+     */
+    public static long getRegionExitPeriod() {
+        return sExitRegionPeriod;
     }
 
     /**
@@ -277,21 +232,12 @@ public class BeaconManager {
      *
      * @param regionExitPeriod
      */
-    public static void setRegionExitPeriod(long regionExitPeriod){
+    public static void setRegionExitPeriod(long regionExitPeriod) {
         sExitRegionPeriod = regionExitPeriod;
         BeaconManager instance = sInstance;
         if (instance != null) {
             instance.applySettings();
         }
-    }
-    
-    /**
-     * Get region exit milliseconds
-     *
-     * @return exit region period in milliseconds
-     */
-    public static long getRegionExitPeriod(){
-        return sExitRegionPeriod;
     }
 
     /**
@@ -325,14 +271,132 @@ public class BeaconManager {
         return instance;
     }
 
-    protected BeaconManager(@NonNull Context context) {
-        mContext = context.getApplicationContext();
-        checkIfMainProcess();
-        if (!sManifestCheckingDisabled) {
-           verifyServiceDeclaration();
-         }
-        this.beaconParsers.add(new AltBeaconParser());
-        setScheduledScanJobsEnabledDefault();
+    /**
+     * Convenience method for logging debug by the library
+     *
+     * @param tag
+     * @param message
+     * @deprecated This will be removed in a later release. Use
+     * {@link org.altbeacon.beacon.logging.LogManager#d(String, String, Object...)} instead.
+     */
+    @Deprecated
+    public static void logDebug(String tag, String message) {
+        LogManager.d(tag, message);
+    }
+
+    /**
+     * Convenience method for logging debug by the library
+     *
+     * @param tag
+     * @param message
+     * @param t
+     * @deprecated This will be removed in a later release. Use
+     * {@link org.altbeacon.beacon.logging.LogManager#d(Throwable, String, String, Object...)}
+     * instead.
+     */
+    @Deprecated
+    public static void logDebug(String tag, String message, Throwable t) {
+        LogManager.d(t, tag, message);
+    }
+
+    public static String getDistanceModelUpdateUrl() {
+        return distanceModelUpdateUrl;
+    }
+
+    public static void setDistanceModelUpdateUrl(@NonNull String url) {
+        warnIfScannerNotInSameProcess();
+        distanceModelUpdateUrl = url;
+    }
+
+    public static Class getRssiFilterImplClass() {
+        return rssiFilterImplClass;
+    }
+
+    public static void setRssiFilterImplClass(@NonNull Class c) {
+        warnIfScannerNotInSameProcess();
+        rssiFilterImplClass = c;
+    }
+
+    /**
+     * Allow the library to use a tracking cache
+     *
+     * @param useTrackingCache
+     */
+    public static void setUseTrackingCache(boolean useTrackingCache) {
+        RangeState.setUseTrackingCache(useTrackingCache);
+        if (sInstance != null) {
+            sInstance.applySettings();
+        }
+    }
+
+    @Nullable
+    public static BeaconSimulator getBeaconSimulator() {
+        return BeaconManager.beaconSimulator;
+    }
+
+    public static void setBeaconSimulator(BeaconSimulator beaconSimulator) {
+        warnIfScannerNotInSameProcess();
+        BeaconManager.beaconSimulator = beaconSimulator;
+    }
+
+    /**
+     * Determines if Android L Scanning is disabled by user selection
+     *
+     * @return
+     */
+    public static boolean isAndroidLScanningDisabled() {
+        return sAndroidLScanningDisabled;
+    }
+
+    /**
+     * Allows disabling use of Android L BLE Scanning APIs on devices with API 21+
+     * If set to false (default), devices with API 21+ will use the Android L APIs to
+     * scan for beacons
+     *
+     * @param disabled
+     */
+    public static void setAndroidLScanningDisabled(boolean disabled) {
+        sAndroidLScanningDisabled = disabled;
+        BeaconManager instance = sInstance;
+        if (instance != null) {
+            instance.applySettings();
+        }
+    }
+
+    /**
+     * Deprecated misspelled method
+     *
+     * @param disabled
+     * @see #setManifestCheckingDisabled(boolean)
+     */
+    @Deprecated
+    public static void setsManifestCheckingDisabled(boolean disabled) {
+        sManifestCheckingDisabled = disabled;
+    }
+
+    /**
+     * Returns whether manifest checking is disabled
+     */
+    public static boolean getManifestCheckingDisabled() {
+        return sManifestCheckingDisabled;
+    }
+
+    /**
+     * Allows disabling check of manifest for proper configuration of service.  Useful for unit
+     * testing
+     *
+     * @param disabled
+     */
+    public static void setManifestCheckingDisabled(boolean disabled) {
+        sManifestCheckingDisabled = disabled;
+    }
+
+    private static void warnIfScannerNotInSameProcess() {
+        BeaconManager instance = sInstance;
+        if (instance != null && instance.isScannerInDifferentProcess()) {
+            LogManager.w(TAG,
+                    "Unsupported configuration change made for BeaconScanner in separate process");
+        }
     }
 
     /***
@@ -346,7 +410,6 @@ public class BeaconManager {
     }
 
     /**
-     * 
      * Determines if this BeaconManager instance is not part of the process hosting the beacon scanning
      * service.  This is normally false, except when scanning is hosted in a different process.
      * This will always return false until the scanning service starts up, at which time it will be
@@ -361,6 +424,7 @@ public class BeaconManager {
 
     /**
      * Reserved for internal use by the library.
+     *
      * @hide
      */
     public void setScannerInSameProcess(boolean isScanner) {
@@ -373,15 +437,15 @@ public class BeaconManager {
         String packageName = processUtils.getPackageName();
         int pid = processUtils.getPid();
         mMainProcess = processUtils.isMainProcess();
-        LogManager.i(TAG, "BeaconManager started up on pid "+pid+" named '"+processName+"' for application package '"+packageName+"'.  isMainProcess="+mMainProcess);
+        LogManager.i(TAG, "BeaconManager started up on pid " + pid + " named '" + processName + "' for application package '" + packageName + "'.  isMainProcess=" + mMainProcess);
     }
 
-   /**
+    /**
      * Gets a list of the active beaconParsers.
      *
      * @return list of active BeaconParsers
      */
-   @NonNull
+    @NonNull
     public List<BeaconParser> getBeaconParsers() {
         return beaconParsers;
     }
@@ -417,22 +481,19 @@ public class BeaconManager {
             ConsumerInfo alreadyBoundConsumerInfo = consumers.putIfAbsent(consumer, newConsumerInfo);
             if (alreadyBoundConsumerInfo != null) {
                 LogManager.d(TAG, "This consumer is already bound");
-            }
-            else {
+            } else {
                 LogManager.d(TAG, "This consumer is not bound.  Binding now: %s", consumer);
                 if (mScheduledScanJobsEnabled) {
                     LogManager.d(TAG, "Not starting beacon scanning service. Using scheduled jobs");
                     consumer.onBeaconServiceConnect();
-                }
-                else {
+                } else {
                     LogManager.d(TAG, "Binding to service");
                     Intent intent = new Intent(consumer.getApplicationContext(), BeaconService.class);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                             this.getForegroundServiceNotification() != null) {
                         LogManager.i(TAG, "Starting foreground beacon scanning service.");
                         mContext.startForegroundService(intent);
-                    }
-                    else {
+                    } else {
                     }
                     consumer.bindService(intent, newConsumerInfo.beaconServiceConnection, Context.BIND_AUTO_CREATE);
                 }
@@ -457,13 +518,12 @@ public class BeaconManager {
                 LogManager.d(TAG, "Unbinding");
                 if (mScheduledScanJobsEnabled) {
                     LogManager.d(TAG, "Not unbinding from scanning service as we are using scan jobs.");
-                }
-                else {
+                } else {
                     consumer.unbindService(consumers.get(consumer).beaconServiceConnection);
                 }
-                LogManager.d(TAG, "Before unbind, consumer count is "+consumers.size());
+                LogManager.d(TAG, "Before unbind, consumer count is " + consumers.size());
                 consumers.remove(consumer);
-                LogManager.d(TAG, "After unbind, consumer count is "+consumers.size());
+                LogManager.d(TAG, "After unbind, consumer count is " + consumers.size());
                 if (consumers.size() == 0) {
                     // If this is the last consumer to disconnect, the service will exit
                     // release the serviceMessenger.
@@ -480,8 +540,7 @@ public class BeaconManager {
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 LogManager.d(TAG, "This consumer is not bound to: %s", consumer);
                 LogManager.d(TAG, "Bound consumers: ");
                 Set<Map.Entry<BeaconConsumer, ConsumerInfo>> consumers = this.consumers.entrySet();
@@ -499,7 +558,7 @@ public class BeaconManager {
      * @return
      */
     public boolean isBound(@NonNull BeaconConsumer consumer) {
-        synchronized(consumers) {
+        synchronized (consumers) {
             // Annotation doesn't guarantee we get a non-null, but raising an NPE here is excessive
             //noinspection ConstantConditions
             return consumer != null && consumers.get(consumer) != null &&
@@ -513,10 +572,57 @@ public class BeaconManager {
      * @return
      */
     public boolean isAnyConsumerBound() {
-        synchronized(consumers) {
+        synchronized (consumers) {
             return !consumers.isEmpty() &&
                     (mScheduledScanJobsEnabled || serviceMessenger != null);
         }
+    }
+
+    /**
+     * Configures using a `ScanJob` run with the `JobScheduler` to perform scans rather than using a
+     * long-running `BeaconService` to do so.
+     * <p>
+     * Calling with true on devices older than Android L (5.0) will not apply the change
+     * as the JobScheduler is not available.
+     * <p>
+     * This value defaults to true on Android O+ and false on devices with older OS versions.
+     * Accepting the default value of false is recommended on Android N and earlier because
+     * otherwise beacon scans may be run only once every 15 minutes in the background, and no low
+     * power scans may be performed between scanning cycles.
+     * <p>
+     * Setting this value to false will disable ScanJobs when the app is run on Android 8+, which
+     * can prohibit delivery of callbacks when the app is in the background unless the scanning
+     * process is running in a foreground service.
+     * <p>
+     * This method may only be called if bind() has not yet been called, otherwise an
+     * `IllegalStateException` is thown.
+     *
+     * @param enabled
+     */
+    public void setEnableScheduledScanJobs(boolean enabled) {
+        if (isAnyConsumerBound()) {
+            LogManager.e(TAG, "ScanJob may not be configured because a consumer is" +
+                    " already bound.");
+            throw new IllegalStateException("Method must be called before calling bind()");
+        }
+        if (enabled && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            LogManager.e(TAG, "ScanJob may not be configured because JobScheduler is not" +
+                    " availble prior to Android 5.0");
+            return;
+        }
+        if (!enabled && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LogManager.w(TAG, "Disabling ScanJobs on Android 8+ may disable delivery of " +
+                    "beacon callbacks in the background unless a foreground service is active.");
+        }
+        mScheduledScanJobsEnabled = enabled;
+    }
+
+    public boolean getScheduledScanJobsEnabled() {
+        return mScheduledScanJobsEnabled;
+    }
+
+    public boolean getBackgroundMode() {
+        return mBackgroundMode;
     }
 
     /**
@@ -554,62 +660,70 @@ public class BeaconManager {
         }
     }
 
-    /**
-     * Configures using a `ScanJob` run with the `JobScheduler` to perform scans rather than using a
-     * long-running `BeaconService` to do so.
-     *
-     * Calling with true on devices older than Android L (5.0) will not apply the change
-     * as the JobScheduler is not available.
-     *
-     * This value defaults to true on Android O+ and false on devices with older OS versions.
-     * Accepting the default value of false is recommended on Android N and earlier because
-     * otherwise beacon scans may be run only once every 15 minutes in the background, and no low
-     * power scans may be performed between scanning cycles.
-     *
-     * Setting this value to false will disable ScanJobs when the app is run on Android 8+, which
-     * can prohibit delivery of callbacks when the app is in the background unless the scanning
-     * process is running in a foreground service.
-     *
-     * This method may only be called if bind() has not yet been called, otherwise an
-     * `IllegalStateException` is thown.
-     *
-     * @param enabled
-     */
-    public void setEnableScheduledScanJobs(boolean enabled) {
-        if (isAnyConsumerBound()) {
-            LogManager.e(TAG, "ScanJob may not be configured because a consumer is" +
-                    " already bound.");
-            throw new IllegalStateException("Method must be called before calling bind()");
-        }
-        if (enabled && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            LogManager.e(TAG, "ScanJob may not be configured because JobScheduler is not" +
-                    " availble prior to Android 5.0");
-            return;
-        }
-        if (!enabled && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LogManager.w(TAG, "Disabling ScanJobs on Android 8+ may disable delivery of "+
-                    "beacon callbacks in the background unless a foreground service is active.");
-        }
-        mScheduledScanJobsEnabled = enabled;
-    }
-    
-    public boolean getScheduledScanJobsEnabled() {
-        return mScheduledScanJobsEnabled;
-    }
-    public boolean getBackgroundMode() {
-        return mBackgroundMode;
-    }
     public long getBackgroundScanPeriod() {
         return backgroundScanPeriod;
     }
+
+    /**
+     * Sets the duration in milliseconds of each Bluetooth LE scan cycle to look for beacons.
+     * This function is used to setup the period before calling {@link #bind} or when switching
+     * between background/foreground. To have it effect on an already running scan (when the next
+     * cycle starts), call {@link #updateScanPeriods}
+     *
+     * @param p
+     */
+    public void setBackgroundScanPeriod(long p) {
+        backgroundScanPeriod = p;
+    }
+
     public long getBackgroundBetweenScanPeriod() {
         return backgroundBetweenScanPeriod;
     }
+
+    /**
+     * Sets the duration in milliseconds spent not scanning between each Bluetooth LE scan cycle when no ranging/monitoring clients are in the foreground
+     *
+     * @param p
+     */
+    public void setBackgroundBetweenScanPeriod(long p) {
+        backgroundBetweenScanPeriod = p;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                backgroundBetweenScanPeriod < 15 * 60 * 1000 /* 15 min */) {
+            LogManager.w(TAG, "Setting a short backgroundBetweenScanPeriod has no effect on " +
+                    "Android 8+, which is limited to scanning every ~15 minutes");
+        }
+    }
+
     public long getForegroundScanPeriod() {
         return foregroundScanPeriod;
     }
+
+    /**
+     * Sets the duration in milliseconds of each Bluetooth LE scan cycle to look for beacons.
+     * This function is used to setup the period before calling {@link #bind} or when switching
+     * between background/foreground. To have it effect on an already running scan (when the next
+     * cycle starts), call {@link #updateScanPeriods}
+     *
+     * @param p
+     */
+    public void setForegroundScanPeriod(long p) {
+        foregroundScanPeriod = p;
+    }
+
     public long getForegroundBetweenScanPeriod() {
         return foregroundBetweenScanPeriod;
+    }
+
+    /**
+     * Sets the duration in milliseconds between each Bluetooth LE scan cycle to look for beacons.
+     * This function is used to setup the period before calling {@link #bind} or when switching
+     * between background/foreground. To have it effect on an already running scan (when the next
+     * cycle starts), call {@link #updateScanPeriods}
+     *
+     * @param p
+     */
+    public void setForegroundBetweenScanPeriod(long p) {
+        foregroundBetweenScanPeriod = p;
     }
 
     /**
@@ -767,6 +881,15 @@ public class BeaconManager {
     }
 
     /**
+     * Indicates whether region state preservation is enabled
+     *
+     * @return
+     */
+    public boolean isRegionStatePersistenceEnabled() {
+        return mRegionStatePersistenceEnabled;
+    }
+
+    /**
      * Turns off saving the state of monitored regions to persistent storage so it is retained over
      * app restarts.  Defaults to enabled.  When enabled, there will not be an "extra" region entry
      * event when the app starts up and a beacon for a monitored region was previously visible
@@ -788,17 +911,10 @@ public class BeaconManager {
     }
 
     /**
-     * Indicates whether region state preservation is enabled
-     * @return
-     */
-    public boolean isRegionStatePersistenceEnabled() {
-        return mRegionStatePersistenceEnabled;
-    }
-
-    /**
      * Requests the current in/out state on the specified region. If the region is being monitored,
      * this will cause an asynchronous callback on the `MonitorNotifier`'s `didDetermineStateForRegion`
      * method.  If it is not a monitored region, it will be ignored.
+     *
      * @param region
      */
     public void requestStateForRegion(@NonNull Region region) {
@@ -877,6 +993,7 @@ public class BeaconManager {
     /**
      * Call this method if you are running the scanner service in a different process in order to
      * synchronize any configuration settings, including BeaconParsers to the scanner
+     *
      * @see #isScannerInDifferentProcess()
      */
     public void applySettings() {
@@ -1001,11 +1118,9 @@ public class BeaconManager {
         Message msg = Message.obtain(null, type, 0, 0);
         if (type == BeaconService.MSG_SET_SCAN_PERIODS) {
             msg.setData(new StartRMData(this.getScanPeriod(), this.getBetweenScanPeriod(), this.mBackgroundMode).toBundle());
-        }
-        else if (type == BeaconService.MSG_SYNC_SETTINGS) {
+        } else if (type == BeaconService.MSG_SYNC_SETTINGS) {
             msg.setData(new SettingsData().collect(mContext).toBundle());
-        }
-        else {
+        } else {
             msg.setData(new StartRMData(region, callbackPackageName(), getScanPeriod(), getBetweenScanPeriod(), mBackgroundMode).toBundle());
         }
         serviceMessenger.send(msg);
@@ -1047,7 +1162,7 @@ public class BeaconManager {
      * @see Collections#unmodifiableSet(Set)
      */
     @NonNull
-    public Set<MonitorNotifier> getMonitoringNotifiers(){
+    public Set<MonitorNotifier> getMonitoringNotifiers() {
         return Collections.unmodifiableSet(monitorNotifiers);
     }
 
@@ -1098,105 +1213,28 @@ public class BeaconManager {
      */
     @NonNull
     public Collection<Region> getRangedRegions() {
-        synchronized(this.rangedRegions) {
+        synchronized (this.rangedRegions) {
             return new ArrayList<>(this.rangedRegions);
-        }
-    }
-
-    /**
-     * Convenience method for logging debug by the library
-     *
-     * @param tag
-     * @param message
-     * @deprecated This will be removed in a later release. Use
-     * {@link org.altbeacon.beacon.logging.LogManager#d(String, String, Object...)} instead.
-     */
-    @Deprecated
-    public static void logDebug(String tag, String message) {
-        LogManager.d(tag, message);
-    }
-
-    /**
-     * Convenience method for logging debug by the library
-     *
-     * @param tag
-     * @param message
-     * @param t
-     * @deprecated This will be removed in a later release. Use
-     * {@link org.altbeacon.beacon.logging.LogManager#d(Throwable, String, String, Object...)}
-     * instead.
-     */
-    @Deprecated
-    public static void logDebug(String tag, String message, Throwable t) {
-        LogManager.d(t, tag, message);
-    }
-
-    @Nullable
-    protected static BeaconSimulator beaconSimulator;
-
-    protected static String distanceModelUpdateUrl = "https://s3.amazonaws.com/android-beacon-library/android-distance.json";
-
-    public static String getDistanceModelUpdateUrl() {
-        return distanceModelUpdateUrl;
-    }
-
-    public static void setDistanceModelUpdateUrl(@NonNull String url) {
-        warnIfScannerNotInSameProcess();
-        distanceModelUpdateUrl = url;
-    }
-
-    /**
-     * Default class for rssi filter/calculation implementation
-     */
-    protected static Class rssiFilterImplClass = RunningAverageRssiFilter.class;
-
-    public static void setRssiFilterImplClass(@NonNull Class c) {
-        warnIfScannerNotInSameProcess();
-        rssiFilterImplClass = c;
-    }
-
-    public static Class getRssiFilterImplClass() {
-        return rssiFilterImplClass;
-    }
-
-    /**
-     * Allow the library to use a tracking cache
-     * @param useTrackingCache
-     */
-    public static void setUseTrackingCache(boolean useTrackingCache) {
-        RangeState.setUseTrackingCache(useTrackingCache);
-        if (sInstance != null) {
-            sInstance.applySettings();
         }
     }
 
     /**
      * Set the period of time, in which a beacon did not receive new
      * measurements
+     *
      * @param maxTrackingAge in milliseconds
      */
     public void setMaxTrackingAge(int maxTrackingAge) {
         RangedBeacon.setMaxTrackinAge(maxTrackingAge);
     }
 
-    public static void setBeaconSimulator(BeaconSimulator beaconSimulator) {
-        warnIfScannerNotInSameProcess();
-        BeaconManager.beaconSimulator = beaconSimulator;
-    }
-
-    @Nullable
-    public static BeaconSimulator getBeaconSimulator() {
-        return BeaconManager.beaconSimulator;
-    }
-
-
-    protected void setDataRequestNotifier(@Nullable RangeNotifier notifier) {
-        this.dataRequestNotifier = notifier;
-    }
-
     @Nullable
     protected RangeNotifier getDataRequestNotifier() {
         return this.dataRequestNotifier;
+    }
+
+    protected void setDataRequestNotifier(@Nullable RangeNotifier notifier) {
+        this.dataRequestNotifier = notifier;
     }
 
     @Nullable
@@ -1214,6 +1252,7 @@ public class BeaconManager {
         }
         return isBleAvailable();
     }
+
     private boolean isBleAvailable() {
         boolean available = false;
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -1253,6 +1292,89 @@ public class BeaconManager {
         }
     }
 
+    /**
+     * Configures the library to use a foreground service for bacon scanning.  This allows nearly
+     * constant scanning on most Android versions to get around background limits, and displays an
+     * icon to the user to indicate that the app is doing something in the background, even on
+     * Android 8+.  This will disable the user of the JobScheduler on Android 8 to do scans.  Note
+     * that this method does not by itself enable constant scanning.  The scan intervals will work
+     * as normal and must be configurd to specific values depending on how often you wish to scan.
+     *
+     * @param notification - the notification that will be displayed when beacon scanning is active,
+     *                     along with the icon that shows up in the status bar.
+     * @throws IllegalStateException if called after consumers are already bound to the scanning
+     *                               service
+     * @see #setForegroundScanPeriod(long)
+     * @see #setForegroundBetweenScanPeriod(long)
+     * <p>
+     * This method requires a notification to display a message to the user about why the app is
+     * scanning in the background.  The notification must include an icon that will be displayed
+     * in the top bar whenever the scanning service is running.
+     * <p>
+     * If the BeaconService is configured to run in a different process, this call will have no
+     * effect.
+     */
+    public void enableForegroundServiceScanning(Notification notification, int notificationId)
+            throws IllegalStateException {
+        if (isAnyConsumerBound()) {
+            throw new IllegalStateException("May not be called after consumers are already bound.");
+        }
+        if (notification == null) {
+            throw new NullPointerException("Notification cannot be null");
+        }
+        setEnableScheduledScanJobs(false);
+        mForegroundServiceNotification = notification;
+        mForegroundServiceNotificationId = notificationId;
+    }
+
+    /**
+     * Disables a foreground scanning service, if previously configured.
+     *
+     * @throws IllegalStateException if called after consumers are already bound to the scanning
+     *                               service
+     * @see #enableForegroundServiceScanning
+     * <p>
+     * In order to call this method to disable a foreground service, you must  unbind from the
+     * BeaconManager.  You can then rebind after this call is made.
+     */
+    public void disableForegroundServiceScanning() throws IllegalStateException {
+        if (isAnyConsumerBound()) {
+            throw new IllegalStateException("May not be called after consumers are already bound");
+        }
+        mForegroundServiceNotification = null;
+        setScheduledScanJobsEnabledDefault();
+    }
+
+    /**
+     * @return The notification shown for the beacon scanning service, if so configured
+     * @see #enableForegroundServiceScanning
+     */
+    public Notification getForegroundServiceNotification() {
+        return mForegroundServiceNotification;
+    }
+
+    /**
+     * @return The notification shown for the beacon scanning service, if so configured
+     * @see #enableForegroundServiceScanning
+     */
+    public int getForegroundServiceNotificationId() {
+        return mForegroundServiceNotificationId;
+    }
+
+    private boolean determineIfCalledFromSeparateScannerProcess() {
+        if (isScannerInDifferentProcess() && !isMainProcess()) {
+            LogManager.w(TAG, "Ranging/Monitoring may not be controlled from a separate " +
+                    "BeaconScanner process.  To remove this warning, please wrap this call in:" +
+                    " if (beaconManager.isMainProcess())");
+            return true;
+        }
+        return false;
+    }
+
+    private void setScheduledScanJobsEnabledDefault() {
+        mScheduledScanJobsEnabled = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
     private class ConsumerInfo {
         public boolean isConnected = false;
 
@@ -1261,7 +1383,7 @@ public class BeaconManager {
 
         public ConsumerInfo() {
             this.isConnected = false;
-            this.beaconServiceConnection= new BeaconServiceConnection();
+            this.beaconServiceConnection = new BeaconServiceConnection();
         }
     }
 
@@ -1278,7 +1400,7 @@ public class BeaconManager {
             serviceMessenger = new Messenger(service);
             // This will sync settings to the scanning service if it is in a different process
             applySettings();
-            synchronized(consumers) {
+            synchronized (consumers) {
                 Iterator<Map.Entry<BeaconConsumer, ConsumerInfo>> iter = consumers.entrySet().iterator();
                 while (iter.hasNext()) {
                     Map.Entry<BeaconConsumer, ConsumerInfo> entry = iter.next();
@@ -1303,153 +1425,5 @@ public class BeaconManager {
             super("The BeaconService is not properly declared in AndroidManifest.xml.  If using Eclipse," +
                     " please verify that your project.properties has manifestmerger.enabled=true");
         }
-    }
-
-    /**
-     * Determines if Android L Scanning is disabled by user selection
-     *
-     * @return
-     */
-    public static boolean isAndroidLScanningDisabled() {
-        return sAndroidLScanningDisabled;
-    }
-
-    /**
-     * Allows disabling use of Android L BLE Scanning APIs on devices with API 21+
-     * If set to false (default), devices with API 21+ will use the Android L APIs to
-     * scan for beacons
-     *
-     * @param disabled
-     */
-    public static void setAndroidLScanningDisabled(boolean disabled) {
-        sAndroidLScanningDisabled = disabled;
-        BeaconManager instance = sInstance;
-        if (instance != null) {
-            instance.applySettings();
-        }
-    }
-
-    /**
-     * Deprecated misspelled method
-     * @see #setManifestCheckingDisabled(boolean)
-     * @param disabled
-     */
-    @Deprecated
-    public static void setsManifestCheckingDisabled(boolean disabled) {
-        sManifestCheckingDisabled = disabled;
-    }
-
-    /**
-     * Allows disabling check of manifest for proper configuration of service.  Useful for unit
-     * testing
-     *
-     * @param disabled
-     */
-    public static void setManifestCheckingDisabled(boolean disabled) {
-        sManifestCheckingDisabled = disabled;
-    }
-
-    /**
-     * Returns whether manifest checking is disabled
-     */
-    public static boolean getManifestCheckingDisabled() {
-        return sManifestCheckingDisabled;
-    }
-
-
-    /**
-     * Configures the library to use a foreground service for bacon scanning.  This allows nearly
-     * constant scanning on most Android versions to get around background limits, and displays an
-     * icon to the user to indicate that the app is doing something in the background, even on
-     * Android 8+.  This will disable the user of the JobScheduler on Android 8 to do scans.  Note
-     * that this method does not by itself enable constant scanning.  The scan intervals will work
-     * as normal and must be configurd to specific values depending on how often you wish to scan.
-     *
-     * @see #setForegroundScanPeriod(long)
-     * @see #setForegroundBetweenScanPeriod(long)
-     *
-     * This method requires a notification to display a message to the user about why the app is
-     * scanning in the background.  The notification must include an icon that will be displayed
-     * in the top bar whenever the scanning service is running.
-     *
-     * If the BeaconService is configured to run in a different process, this call will have no
-     * effect.
-     *
-     * @param notification - the notification that will be displayed when beacon scanning is active,
-     *                       along with the icon that shows up in the status bar.
-     *
-     * @throws IllegalStateException if called after consumers are already bound to the scanning
-     * service
-     */
-    public void enableForegroundServiceScanning(Notification notification, int notificationId)
-            throws IllegalStateException {
-        if (isAnyConsumerBound()) {
-            throw new IllegalStateException("May not be called after consumers are already bound.");
-        }
-        if (notification == null) {
-            throw new NullPointerException("Notification cannot be null");
-        }
-        setEnableScheduledScanJobs(false);
-        mForegroundServiceNotification = notification;
-        mForegroundServiceNotificationId = notificationId;
-    }
-
-    /**
-     * Disables a foreground scanning service, if previously configured.
-     *
-     * @see #enableForegroundServiceScanning
-     *
-     * In order to call this method to disable a foreground service, you must  unbind from the
-     * BeaconManager.  You can then rebind after this call is made.
-     *
-     * @throws IllegalStateException if called after consumers are already bound to the scanning
-     * service
-     */
-    public void disableForegroundServiceScanning() throws IllegalStateException {
-        if (isAnyConsumerBound()) {
-            throw new IllegalStateException("May not be called after consumers are already bound");
-        }
-        mForegroundServiceNotification = null;
-        setScheduledScanJobsEnabledDefault();
-    }
-
-    /**
-     * @see #enableForegroundServiceScanning
-     * @return The notification shown for the beacon scanning service, if so configured
-     */
-    public Notification getForegroundServiceNotification() {
-        return mForegroundServiceNotification;
-    }
-
-
-    /**
-     * @see #enableForegroundServiceScanning
-     * @return The notification shown for the beacon scanning service, if so configured
-     */
-    public int getForegroundServiceNotificationId() {
-        return mForegroundServiceNotificationId;
-    }
-
-
-    private boolean determineIfCalledFromSeparateScannerProcess() {
-        if (isScannerInDifferentProcess() && !isMainProcess()) {
-            LogManager.w(TAG, "Ranging/Monitoring may not be controlled from a separate "+
-                    "BeaconScanner process.  To remove this warning, please wrap this call in:"+
-                    " if (beaconManager.isMainProcess())");
-            return true;
-        }
-        return false;
-    }
-
-    private static void warnIfScannerNotInSameProcess() {
-        BeaconManager instance = sInstance;
-        if (instance != null && instance.isScannerInDifferentProcess()) {
-            LogManager.w(TAG,
-                    "Unsupported configuration change made for BeaconScanner in separate process");
-        }
-    }
-
-    private void setScheduledScanJobsEnabledDefault() {
-        mScheduledScanJobsEnabled = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 }

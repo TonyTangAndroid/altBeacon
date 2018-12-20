@@ -3,7 +3,7 @@
  * http://www.radiusnetworks.com
  *
  * @author David G. Young
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -11,9 +11,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,11 +33,11 @@ import android.content.ServiceConnection;
  * with <code>BeaconManager</code> and provides a callback when the <code>BeaconService</code>
  * is ready to use.  Until this callback is made, ranging and monitoring of beacons is not
  * possible.
- *
+ * <p>
  * In the example below, an Activity implements the <code>BeaconConsumer</code> interface, binds
  * to the service, then when it gets the callback saying the service is ready, it starts ranging.
  *
- *  <pre><code>
+ * <pre><code>
  *  public class RangingActivity extends Activity implements BeaconConsumer {
  *      protected static final String TAG = "RangingActivity";
  *      private BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
@@ -74,10 +74,8 @@ import android.content.ServiceConnection;
  *  }
  *  </code></pre>
  *
- * @see BeaconManager
- *
  * @author David G. Young
- *
+ * @see BeaconManager
  */
 public interface BeaconConsumer {
 
@@ -89,6 +87,7 @@ public interface BeaconConsumer {
     /**
      * Called by the BeaconManager to get the context of your Service or Activity.  This method is implemented by Service or Activity.
      * You generally should not override it.
+     *
      * @return the application context of your service or activity
      */
     public Context getApplicationContext();
@@ -96,6 +95,7 @@ public interface BeaconConsumer {
     /**
      * Called by the BeaconManager to unbind your BeaconConsumer to the  BeaconService.  This method is implemented by Service or Activity, and
      * You generally should not override it.
+     *
      * @return the application context of your service or activity
      */
     public void unbindService(ServiceConnection connection);
@@ -103,6 +103,7 @@ public interface BeaconConsumer {
     /**
      * Called by the BeaconManager to bind your BeaconConsumer to the  BeaconService.  This method is implemented by Service or Activity, and
      * You generally should not override it.
+     *
      * @return the application context of your service or activity
      */
     public boolean bindService(Intent intent, ServiceConnection connection, int mode);

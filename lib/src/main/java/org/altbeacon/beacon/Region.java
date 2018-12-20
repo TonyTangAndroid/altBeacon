@@ -3,7 +3,7 @@
  * http://www.radiusnetworks.com
  *
  * @author David G. Young
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -11,9 +11,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,24 +33,21 @@ import java.util.regex.Pattern;
 
 /**
  * This class represents a criteria of fields used to match beacons.
- *
+ * <p>
  * The uniqueId field is used to distinguish this Region in the system.  When you set up
  * monitoring or ranging based on a Region and later want to stop monitoring or ranging,
  * you must do so by passing a Region object that has the same uniqueId field value.  If it
  * doesn't match, you can't cancel the operation.  There is no other purpose to this field.
- *
+ * <p>
  * The region can be constructed from a multi-part identifier.  The first identifier is the most
  * significant, the second the second most significant, etc.
- *
+ * <p>
  * When constructing a range, any or all of these identifiers may be set to null,
  * which indicates that they are a wildcard and will match any value.
  *
  * @author dyoung
- *
  */
 public class Region implements Parcelable, Serializable {
-    private static final String TAG = "Region";
-    private static final Pattern MAC_PATTERN = Pattern.compile("^[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}$");
     /**
      * Required to make class Parcelable
      */
@@ -64,16 +61,19 @@ public class Region implements Parcelable, Serializable {
             return new Region[size];
         }
     };
+    private static final String TAG = "Region";
+    private static final Pattern MAC_PATTERN = Pattern.compile("^[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}\\:[0-9A-Fa-f]{2}$");
     protected final List<Identifier> mIdentifiers;
     protected final String mBluetoothAddress;
     protected final String mUniqueId;
 
     /**
      * Constructs a new Region object to be used for Ranging or Monitoring
+     *
      * @param uniqueId - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
-     * @param id1 - most significant identifier (can be null)
-     * @param id2 - second most significant identifier (can be null)
-     * @param id3 - third most significant identifier (can be null)
+     * @param id1      - most significant identifier (can be null)
+     * @param id2      - second most significant identifier (can be null)
+     * @param id3      - third most significant identifier (can be null)
      */
     public Region(String uniqueId, Identifier id1, Identifier id2, Identifier id3) {
         this.mIdentifiers = new ArrayList<Identifier>(3);
@@ -89,17 +89,19 @@ public class Region implements Parcelable, Serializable {
 
     /**
      * Constructs a new Region object to be used for Ranging or Monitoring
-     * @param uniqueId - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
+     *
+     * @param uniqueId    - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
      * @param identifiers - list of identifiers for this region
      */
     public Region(String uniqueId, List<Identifier> identifiers) {
-       this(uniqueId, identifiers, null);
+        this(uniqueId, identifiers, null);
     }
 
     /**
      * Constructs a new Region object to be used for Ranging or Monitoring
-     * @param uniqueId - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
-     * @param identifiers - list of identifiers for this region
+     *
+     * @param uniqueId         - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
+     * @param identifiers      - list of identifiers for this region
      * @param bluetoothAddress - mac address
      */
     public Region(String uniqueId, List<Identifier> identifiers, String bluetoothAddress) {
@@ -114,7 +116,8 @@ public class Region implements Parcelable, Serializable {
 
     /**
      * Constructs a new Region object to be used for Ranging or Monitoring
-     * @param uniqueId - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
+     *
+     * @param uniqueId         - A unique identifier used to later cancel Ranging and Monitoring, or change the region being Ranged/Monitored
      * @param bluetoothAddress - mac address used to match beacons
      */
     public Region(String uniqueId, String bluetoothAddress) {
@@ -127,8 +130,25 @@ public class Region implements Parcelable, Serializable {
         }
     }
 
+    protected Region(Parcel in) {
+        mUniqueId = in.readString();
+        mBluetoothAddress = in.readString();
+        int size = in.readInt();
+        mIdentifiers = new ArrayList<Identifier>(size);
+        for (int i = 0; i < size; i++) {
+            String identifierString = in.readString();
+            if (identifierString == null) {
+                mIdentifiers.add(null);
+            } else {
+                Identifier identifier = Identifier.parse(identifierString);
+                mIdentifiers.add(identifier);
+            }
+        }
+    }
+
     /**
      * Convenience method to get the first identifier
+     *
      * @return
      */
     public Identifier getId1() {
@@ -137,6 +157,7 @@ public class Region implements Parcelable, Serializable {
 
     /**
      * Convenience method to get the second identifier
+     *
      * @return
      */
     public Identifier getId2() {
@@ -145,6 +166,7 @@ public class Region implements Parcelable, Serializable {
 
     /**
      * Convenience method to get the third identifier
+     *
      * @return
      */
     public Identifier getId3() {
@@ -154,6 +176,7 @@ public class Region implements Parcelable, Serializable {
     /**
      * Returns the 0-indexed identifier
      * Note:  IMPORTANT:  to get id1, you would call getIdentifier(0);
+     *
      * @param i
      * @return
      */
@@ -164,6 +187,7 @@ public class Region implements Parcelable, Serializable {
     /**
      * Returns the identifier used to start or stop ranging/monitoring this region when calling
      * the <code>BeaconManager</code> methods.
+     *
      * @return
      */
     public String getUniqueId() {
@@ -173,10 +197,13 @@ public class Region implements Parcelable, Serializable {
     /**
      * Returns the mac address used to filter for beacons
      */
-    public String getBluetoothAddress() { return mBluetoothAddress; }
+    public String getBluetoothAddress() {
+        return mBluetoothAddress;
+    }
 
     /**
      * Checks to see if an Beacon object is included in the matching criteria of this Region
+     *
      * @param beacon the beacon to check to see if it is in the Region
      * @return true if is covered
      */
@@ -189,7 +216,7 @@ public class Region implements Parcelable, Serializable {
                 beaconIdentifier = beacon.getIdentifier(i);
             }
             if ((beaconIdentifier == null && identifier != null) ||
-                    (beaconIdentifier != null  && identifier != null && !identifier.equals(beaconIdentifier))) {
+                    (beaconIdentifier != null && identifier != null && !identifier.equals(beaconIdentifier))) {
                 return false;
             }
         }
@@ -207,40 +234,35 @@ public class Region implements Parcelable, Serializable {
     @Override
     public boolean equals(Object other) {
         if (other instanceof Region) {
-            return ((Region)other).mUniqueId.equals(this.mUniqueId);
+            return ((Region) other).mUniqueId.equals(this.mUniqueId);
         }
         return false;
     }
 
     public boolean hasSameIdentifiers(Region region) {
         if (region.mIdentifiers.size() == this.mIdentifiers.size()) {
-            for (int i = 0 ; i < region.mIdentifiers.size(); i++) {
+            for (int i = 0; i < region.mIdentifiers.size(); i++) {
 
                 if (region.getIdentifier(i) == null && this.getIdentifier(i) != null) {
                     return false;
-                }
-                else if (region.getIdentifier(i) != null && this.getIdentifier(i) == null) {
+                } else if (region.getIdentifier(i) != null && this.getIdentifier(i) == null) {
                     return false;
-                }
-                else if (!(region.getIdentifier(i) == null && this.getIdentifier(i) == null)) {
+                } else if (!(region.getIdentifier(i) == null && this.getIdentifier(i) == null)) {
                     if (!region.getIdentifier(i).equals(this.getIdentifier(i))) {
                         return false;
                     }
                 }
             }
-        }
-        else {
+        } else {
             return false;
         }
         return true;
     }
 
-
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         int i = 1;
-        for (Identifier identifier: mIdentifiers) {
+        for (Identifier identifier : mIdentifiers) {
             if (i > 1) {
                 sb.append(" ");
             }
@@ -262,46 +284,29 @@ public class Region implements Parcelable, Serializable {
         out.writeString(mBluetoothAddress);
         out.writeInt(mIdentifiers.size());
 
-        for (Identifier identifier: mIdentifiers) {
+        for (Identifier identifier : mIdentifiers) {
             if (identifier != null) {
                 out.writeString(identifier.toString());
-            }
-            else {
-                out.writeString(null);
-            }
-        }
-    }
-
-
-    protected Region(Parcel in) {
-        mUniqueId = in.readString();
-        mBluetoothAddress = in.readString();
-        int size = in.readInt();
-        mIdentifiers = new ArrayList<Identifier>(size);
-        for (int i = 0; i < size; i++) {
-            String identifierString = in.readString();
-            if (identifierString == null) {
-                mIdentifiers.add(null);
             } else {
-                Identifier identifier = Identifier.parse(identifierString);
-                mIdentifiers.add(identifier);
+                out.writeString(null);
             }
         }
     }
 
     private void validateMac(String mac) throws IllegalArgumentException {
         if (mac != null) {
-            if(!MAC_PATTERN.matcher(mac).matches()) {
-                throw new IllegalArgumentException("Invalid mac address: '"+mac+"' Must be 6 hex bytes separated by colons.");
+            if (!MAC_PATTERN.matcher(mac).matches()) {
+                throw new IllegalArgumentException("Invalid mac address: '" + mac + "' Must be 6 hex bytes separated by colons.");
             }
         }
     }
 
     /**
      * Returns a clone of this instance.
+     *
+     * @return a new instance of this class with the same uniqueId and identifiers
      * @deprecated instances of this class are immutable and therefore don't have to be cloned when
      * used in concurrent code.
-     * @return a new instance of this class with the same uniqueId and identifiers
      */
     @Override
     @Deprecated
