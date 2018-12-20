@@ -56,11 +56,11 @@ task generateJavadoc(type: Javadoc, dependsOn: project.configurations.doclava) {
 
 build.mustRunAfter clean
 
-apply from: 'gradle/credentials.gradle'
-apply from: 'gradle/compile.gradle'
-apply from: 'gradle/publishing.gradle'
-apply from: 'gradle/bintray.gradle'
-apply from: 'gradle/artifactory.gradle'
+apply from: '../gradle/credentials.gradle'
+apply from: '../gradle/compile.gradle'
+apply from: '../gradle/publishing.gradle'
+apply from: '../gradle/bintray.gradle'
+apply from: '../gradle/artifactory.gradle'
 
 artifactoryPublish {
     // Skip deploying to artifactory if building a pull request
