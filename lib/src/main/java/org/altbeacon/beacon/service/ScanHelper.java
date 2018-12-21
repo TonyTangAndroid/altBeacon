@@ -349,6 +349,10 @@ class ScanHelper {
     private List<Region> matchingRegions(Beacon beacon, Collection<Region> regions) {
         List<Region> matched = new ArrayList<>();
         for (Region region : regions) {
+            if (region == null) {
+//                LogManager.w(TAG, "This region is null");
+                continue;
+            }
             if (region.matchesBeacon(beacon)) {
                 matched.add(region);
             } else {
