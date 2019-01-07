@@ -11,6 +11,7 @@ import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.Region;
+import org.altbeacon.beacon.TimedBeaconSimulator;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
@@ -90,6 +91,12 @@ public class BeaconReferenceApplication extends Application implements Bootstrap
         // class will automatically cause the BeaconLibrary to save battery whenever the application
         // is not visible.  This reduces bluetooth power usage by about 60%
         backgroundPowerSaver = new BackgroundPowerSaver(this);
+
+        // If you wish to test beacon detection in the Android Emulator, you can use code like this:
+        BeaconManager.setBeaconSimulator(new TimedBeaconSimulator());
+        TimedBeaconSimulator timedBeaconSimulator = (TimedBeaconSimulator) BeaconManager.getBeaconSimulator();
+        assert timedBeaconSimulator != null;
+        timedBeaconSimulator.createTimedSimulatedBeacons();
     }
 
     public void disableMonitoring() {
