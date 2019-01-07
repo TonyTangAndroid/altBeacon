@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
 
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "org.altbeacon.beaconreference"
+        applicationId "org.altbeacon.beacon.demo.simulator"
         minSdkVersion 21
-        targetSdkVersion 28
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 22
     }
     buildTypes {
         release {

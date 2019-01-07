@@ -2,3 +2,4 @@ if (enableLib == 'true') {
     include ':lib'
 }
 include ':simulator'
+include ':app'
