@@ -75,7 +75,7 @@ public class MonitorSimulatedBeaconActivity extends AppCompatActivity
         } else {
             btn_enable_bluetooth.setText(R.string.enable_bluetooth);
             btn_enable_bluetooth.setEnabled(true);
-            btn_enable_bluetooth.setVisibility(View.INVISIBLE);
+            btn_enable_bluetooth.setVisibility(View.VISIBLE);
         }
 
     }
