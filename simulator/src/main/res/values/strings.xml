@@ -1,12 +1,10 @@
 <resources>
 
     <string name="app_name">Beacon Simulator Demo</string>
-    <string name="begin">Begin</string>
-    <string name="stop">Stop</string>
+    <string name="simulate">Simulate</string>
     <string name="enable_bluetooth">Enable Bluetooth</string>
     <string name="bluetooth_enabled">Bluetooth Enabled</string>
     <string name="ready_to_simulate_beacon">\nUuid has been registered. It is ready to simulate the beacon signal.\n</string>
-    <string name="pending_exit_event">\n\nAll simulated beacon Enter event is emitted. It is waiting Exit event now.\n\n</string>
+    <string name="pending_exit_event">\n\nAll simulated beacon Enter event is emitted. It is waiting Exit event now for around 10 seconds. You need to restart the app to simulate it again.\n\n</string>
     <string name="bluetooth_not_available">Bluetooth Not Available. I know it sounds ironic, but emulator does NOT support Simulator. Please use a real device.</string>
-
 </resources>
