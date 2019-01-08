@@ -5,16 +5,14 @@
               android:orientation="vertical"
               android:padding="16dp">
 
-    <ScrollView
+
+    <TextView
+        android:id="@+id/tv_log"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/tv_log"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </ScrollView>
+        android:layout_weight="1"
+        android:maxLines="10000"
+        android:scrollbars="vertical"/>
 
 
     <LinearLayout

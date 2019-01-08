@@ -2,5 +2,6 @@ if (enableLib == 'true') {
     include ':lib'
 }
 include ':1_monitor'
+include ':1_ranging'
 include ':simulator'
 include ':app'
