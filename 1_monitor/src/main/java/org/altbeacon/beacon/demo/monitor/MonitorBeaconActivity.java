@@ -37,8 +37,13 @@ public class MonitorBeaconActivity extends AppCompatActivity
         tv_log = findViewById(R.id.tv_log);
         btn_scan = findViewById(R.id.btn_scan);
         btn_enable_bluetooth = findViewById(R.id.btn_enable_bluetooth);
+        initBeaconScanSettings();
         initUI();
 
+    }
+
+    private void initBeaconScanSettings() {
+        BeaconManager.setRegionExitPeriod(5000);
     }
 
     private void initUI() {
@@ -59,13 +64,12 @@ public class MonitorBeaconActivity extends AppCompatActivity
     }
 
     private void updateSimulatorUI(boolean bluetoothEnabled) {
-        btn_scan.setEnabled(bluetoothEnabled);
         if (bluetoothEnabled) {
-            clear();
-            append(getString(R.string.scan_ready));
+            bindBeaconManager();
         } else {
+            btn_scan.setEnabled(false);
             clear();
-            append(getString(R.string.scan_ready));
+            append(getString(R.string.scan_not_ready));
         }
     }
 
@@ -110,19 +114,43 @@ public class MonitorBeaconActivity extends AppCompatActivity
     }
 
 
-    private void scanBeacon() {
+    private void bindBeaconManager() {
         BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.addMonitorNotifier(this);
         beaconManager.bind(this);
     }
 
     public void append(final String log) {
-        runOnUiThread(() -> tv_log.append(log));
+        tv_log.append(log);
     }
 
     public void toggleSimulate(View view) {
+        if (btn_scan.getText().equals(getString(R.string.scan))) {
+            onScanRequested();
+        } else {
+            onStopRequested();
+        }
+
+    }
+
+    private void onStopRequested() {
+        stopBeacon();
+        append("\nBeacon scanning stopped.\n");
+        btn_scan.setText(R.string.scan);
+    }
+
+    private void stopBeacon() {
+        deregisterBeaconToBeMonitored(UuidProvider.beaconToMonitored());
+    }
+
+    private void onScanRequested() {
         append("\nBegin to scan beacon.\n");
+        btn_scan.setText(R.string.stop);
         scanBeacon();
+    }
+
+    private void scanBeacon() {
+        registerBeaconToBeMonitored(UuidProvider.beaconToMonitored());
     }
 
 
@@ -143,7 +171,10 @@ public class MonitorBeaconActivity extends AppCompatActivity
 
     @Override
     public void onBeaconServiceConnect() {
-        registerBeaconToBeMonitored(UuidProvider.regionToBeSimulated());
+        clear();
+        append(getString(R.string.scan_ready));
+        btn_scan.setEnabled(true);
+
     }
 
     private void registerBeaconToBeMonitored(List<String> beacons) {
@@ -152,6 +183,19 @@ public class MonitorBeaconActivity extends AppCompatActivity
             for (String beacon : beacons) {
                 append("monitor beacon : " + beacon + "\n");
                 beaconManager.startMonitoringBeaconsInRegion(UuidMapper.constructRegion(beacon));
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private void deregisterBeaconToBeMonitored(List<String> beacons) {
+        try {
+            BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
+            for (String beacon : beacons) {
+                append("stop monitoring beacon : " + beacon + "\n");
+                beaconManager.stopMonitoringBeaconsInRegion(UuidMapper.constructRegion(beacon));
             }
         } catch (RemoteException e) {
             throw new RuntimeException(e);

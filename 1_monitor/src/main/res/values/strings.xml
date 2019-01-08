@@ -7,4 +7,5 @@
     <string name="enable_bluetooth">Enable Bluetooth</string>
     <string name="bluetooth_enabled">Bluetooth Enabled</string>
     <string name="bluetooth_not_available">Bluetooth Not Available. Please use a real device.</string>
+    <string name="stop">Stop</string>
 </resources>

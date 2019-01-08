@@ -6,13 +6,13 @@ import java.util.List;
 public class UuidProvider {
 
     /**
-     * define the beacon that you want to scan.
+     * define the beacon uuid that you want to scan.
      *
      * @return the list of beacon that you would like to scan.
      */
-    public static List<String> regionToBeSimulated() {
+    public static List<String> beaconToMonitored() {
         List<String> result = new ArrayList<>();
-        result.add("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A:1:1");
+        result.add("2F234454-CF6D-4A0F-ADF2-F4911BA9FFA6:1:2");
         return result;
     }
 }
