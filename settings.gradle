@@ -1,5 +1,6 @@
 if (enableLib == 'true') {
     include ':lib'
 }
+include ':1_monitor'
 include ':simulator'
 include ':app'
