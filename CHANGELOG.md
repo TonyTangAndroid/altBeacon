@@ -1,3 +1,8 @@
+### Development
+
+- Update gradle and robolectric (#805, Tony Tang)
+- Fix problem on service shutdown that leaked threads and left scanning on (#804, David G. Young)
+
 ### 2.15.4 / 2018-12-11
 
 - Fix crash on BluetoothCrashResolver (#790, Michael Porter)
