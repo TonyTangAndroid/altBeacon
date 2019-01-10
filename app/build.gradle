@@ -1,0 +1,45 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        applicationId "org.altbeacon.beaconreference"
+        minSdkVersion 19
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 22
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'org.altbeacon:android-beacon-library:2.15.4'
+
+    implementation 'com.willowtreeapps.hyperion:hyperion-core:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-disk:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-recorder:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-phoenix:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-shared-preferences:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-timber:0.9.27'
+    implementation 'com.willowtreeapps.hyperion:hyperion-build-config:0.9.27'
+    
+}
